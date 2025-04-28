@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St. Aggrey N&P School - Student Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 60px;
+        }
+
+        .navbar {
+            background-color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand img {
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: calc(100vh - 60px);
+            position: fixed;
+            top: 60px;
+            left: 0;
+            background-color: #343a40;
+            color: white;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li a {
+            color: white;
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu li a:hover, 
+        .sidebar-menu li.active a {
+            background-color: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .dashboard-card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .student-table th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                left: -250px;
+            }
+            .sidebar.show {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar-toggle {
+                display: block !important;
+            }
+        }
+        .sidebar {
+    width: 250px;
+    height: calc(100vh - 60px);
+    position: fixed;
+    top: 60px;
+    left: -250px;
+    background-color: #343a40;
+    color: white;
+    transition: all 0.3s ease;
+    z-index: 1050;
+    overflow-y: auto;
+}
+
+.sidebar.show {
+    left: 0;
+}
+
+.main-content {
+    padding: 20px;
+    transition: all 0.3s ease;
+    /* No margin-left anymore! */
+}
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <button class="btn text-white sidebar-toggle d-lg-none" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand" href="#">
+                <img src="logo.png" alt="Logo"> Student Management
+            </a>
+            <button class="btn btn-sm btn-danger ms-auto" id="logoutBtn">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="sidebar-menu mt-3">
+            <li class="active"><a href="#"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li><a href="#"><i class="bi bi-people-fill"></i> Students</a></li>
+            <li><a href="#"><i class="bi bi-journal-bookmark-fill"></i> Marks</a></li>
+            <li><a href="#"><i class="bi bi-clipboard-check"></i> Attendance</a></li>
+            <li><a href="#"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a></li>
+            <li><a href="#"><i class="bi bi-gear-fill"></i> Settings</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4><i class="bi bi-people-fill me-2"></i> Student Records</h4>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                    <i class="bi bi-plus-circle"></i> Add New Student
+                </button>
+            </div>
+
+            <!-- Student Table -->
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover student-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Gender</th>
+                                    <th>DOB</th>
+                                    <th>Parent Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody">
+                                <!-- Students will be loaded dynamically here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Add New Student</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addStudentForm">
+                        <input type="text" id="studentName" class="form-control mb-2" placeholder="Full Name" required>
+                        <select id="studentClass" class="form-select mb-2" required>
+                            <option value="">Select Class</option>
+                            <option>Baby Class</option>
+                            <option>Middle Class</option>
+                            <option>Top Class</option>
+                            <option>P.1</option>
+                            <option>P.2</option>
+                            <option>P.3</option>
+                            <option>P.4</option>
+                            <option>P.5</option>
+                            <option>P.6</option>
+                            <option>P.7</option>
+                        </select>
+                        <select id="studentGender" class="form-select mb-2" required>
+                            <option value="">Select Gender</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                        <input type="date" id="studentDob" class="form-control mb-2" required>
+                        <input type="text" id="parentPhone" class="form-control mb-2" placeholder="Parent/Guardian Phone" required>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" id="saveStudentBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Working JavaScript -->
+    <script>
+        let students = [];
+        let idCounter = 1;
+
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const studentTableBody = document.getElementById('studentTableBody');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
+
+        document.getElementById('saveStudentBtn').addEventListener('click', () => {
+            const name = document.getElementById('studentName').value;
+            const sclass = document.getElementById('studentClass').value;
+            const gender = document.getElementById('studentGender').value;
+            const dob = document.getElementById('studentDob').value;
+            const phone = document.getElementById('parentPhone').value;
+
+            if(name && sclass && gender && dob && phone) {
+                students.push({
+                    id: idCounter++,
+                    name,
+                    class: sclass,
+                    gender,
+                    dob,
+                    phone
+                });
+
+                loadStudents();
+                document.getElementById('addStudentForm').reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addStudentModal'));
+                modal.hide();
+            } else {
+                alert('Please fill all fields.');
+            }
+        });
+
+        function loadStudents() {
+            studentTableBody.innerHTML = '';
+            students.forEach((student) => {
+                const row = `
+                    <tr>
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.class}</td>
+                        <td>${student.gender}</td>
+                        <td>${student.dob}</td>
+                        <td>${student.phone}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editStudent(${student.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteStudent(${student.id})"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                studentTableBody.innerHTML += row;
+            });
+        }
+
+        function editStudent(id) {
+            alert('Edit function coming soon! (future upgrade)');
+        }
+
+        function deleteStudent(id) {
+            if(confirm('Are you sure you want to delete this student?')) {
+                students = students.filter(student => student.id !== id);
+                loadStudents();
+            }
+        }
+    </script>
+
+</body>
+</html>
