@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>St. Aggrey N&P School - Marks Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Custom styles for Uganda grading system */
+    body {
+      font-family: 'Segoe UI', times, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .navbar-brand {
+      font-weight: 700;
+    }
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    /* UNEB Grade Colors */
+    .grade-D1 { background-color: #28a745; color: white; } /* Division 1 */
+    .grade-D2 { background-color: #5cb85c; }              /* Division 2 */
+    .grade-C3 { background-color: #b8daff; }             /* Division 3 */
+    .grade-C4 { background-color: #bee5eb; }             /* Division 4 */
+    .grade-C5 { background-color: #d1ecf1; }             /* Division 5 */
+    .grade-P6 { background-color: #fff3cd; }             /* Division 6 */
+    .grade-P7 { background-color: #ffeeba; }             /* Division 7 */
+    .grade-P8 { background-color: #f8d7da; }             /* Division 8 */
+    .grade-F9 { background-color: #dc3545; color: white; } /* Division 9 */
+    .report-header {
+      background-color: #3498db;
+      color: white;
+      padding: 15px;
+      border-radius: 8px 8px 0 0;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      .print-section, .print-section * { visibility: visible; }
+      .print-section { position: absolute; top: 0; left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <img src="logo.png" height="30" class="d-inline-block align-top me-2" alt="">
+        ST AGGREY NUR AND PRI SCHOOL
+      </a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="students.html">Students</a></li>
+          <li class="nav-item"><a class="nav-link active" href="marks.html">Marks</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.html">Reports</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Marks Management System</h2>
+    
+    <!-- Marks Entry Section -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5>Enter Examination Marks</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Class</label>
+            <select id="inputClass" class="form-select">
+              <option value="">Select Class</option>
+              <option>Baby Class</option>
+              <option>Middle Class</option>
+              <option>Top Class</option>
+              <option>P.1</option>
+              <option>P.2</option>
+              <option>P.3</option>
+              <option>P.4</option>
+              <option>P.5</option>
+              <option>P.6</option>
+              <option>P.7</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Subject</label>
+            <input type="text" id="inputSubject" class="form-control">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Term</label>
+            <select id="inputTerm" class="form-select">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Year</label>
+            <input type="number" id="inputYear" class="form-control" value="2024">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button id="loadStudentsBtn" class="btn btn-primary w-100">Load Students</button>
+          </div>
+        </div>
+
+        <div id="marksEntrySection" style="display:none;">
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead class="table-primary">
+                <tr>
+                  <th>No.</th>
+                  <th>Student Name</th>
+                  <th>Marks (0-100)</th>
+                  <th>UNEB Grade</th>
+                  <th>Division</th>
+                </tr>
+              </thead>
+              <tbody id="marksTableBody"></tbody>
+            </table>
+          </div>
+          <button id="saveMarksBtn" class="btn btn-success mt-3">Save Marks</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Generation Section -->
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5>GENERATE REPORTS</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Class</label>
+            <select id="reportClass" class="form-select">
+              <option value="">All Classes</option>
+              <option>P.1</option>
+              <option>P.2</option>
+              <option>P.3</option>
+              <option>P.4</option>
+              <option>P.5</option>
+              <option>P.6</option>
+              <option>P.7</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Term</label>
+            <select id="reportTerm" class="form-select">
+              <option value="">All Terms</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Year</label>
+            <input type="number" id="reportYear" class="form-control" value="2024">
+          </div>
+          <div class="col-md-5 d-flex align-items-end gap-2">
+            <button id="generateReportBtn" class="btn btn-primary">Generate Report</button>
+            <button id="printReportBtn" class="btn btn-outline-primary">Print</button>
+            <button id="exportReportBtn" class="btn btn-outline-success">Export CSV</button>
+          </div>
+        </div>
+
+        <div id="reportSection" class="print-section" style="display:none;">
+          <div class="report-header text-center mb-3">
+            <h3>ST. AGGREY NURSERY AND PRIMARY SCHOOL</h3>
+            <h4>Term <span id="reportTermDisplay"></span> Examination Report - <span id="reportYearDisplay"></span></h4>
+          </div>
+          
+          <div id="classReport" class="mb-4"></div>
+          
+          <div id="studentReports"></div>
+          
+          <div class="mt-4 text-center">
+            <div style="width: 200px; margin: 0 auto; border-top: 1px solid #000; padding-top: 5px;">
+              Head Teacher's Signature
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Uganda UNEB Grading System
+    function calculateUNEBGrade(marks) {
+      if (marks >= 80) return { grade: 'D1', division: '1', remark: 'Excellent' };
+      if (marks >= 75) return { grade: 'D2', division: '2', remark: 'Very Good' };
+      if (marks >= 70) return { grade: 'C3', division: '3', remark: 'Good' };
+      if (marks >= 65) return { grade: 'C4', division: '4', remark: 'Credit' };
+      if (marks >= 60) return { grade: 'C5', division: '5', remark: 'Credit' };
+      if (marks >= 55) return { grade: 'C6', division: '6', remark: 'Pass' };
+      if (marks >= 50) return { grade: 'P7', division: '7', remark: 'Pass' };
+      if (marks >= 45) return { grade: 'P8', division: '8', remark: 'Weak Pass' };
+      return { grade: 'F9', division: '9', remark: 'Fail' };
+    }
+
+    // Load students for marks entry
+    document.getElementById('loadStudentsBtn').addEventListener('click', function() {
+      const className = document.getElementById('inputClass').value;
+      const subject = document.getElementById('inputSubject').value.trim();
+      const term = document.getElementById('inputTerm').value;
+      const year = document.getElementById('inputYear').value;
+
+      if (!className || !subject || !term || !year) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const classStudents = students.filter(s => s.class === className);
+      
+      if (classStudents.length === 0) {
+        alert(`No students found in ${className}`);
+        return;
+      }
+
+      // Check existing marks
+      const existingMarks = JSON.parse(localStorage.getItem('marks')) || [];
+      const existingRecords = existingMarks.filter(m => 
+        m.class === className && 
+        m.subject.toLowerCase() === subject.toLowerCase() && 
+        m.term === term && 
+        m.year == year
+      );
+
+      let html = '';
+      classStudents.forEach((student, index) => {
+        const existingRecord = existingRecords.find(m => m.studentId === student.id);
+        const marksValue = existingRecord ? existingRecord.marks : '';
+        const gradeInfo = existingRecord ? calculateUNEBGrade(existingRecord.marks) : 
+          { grade: '', division: '', remark: '' };
+
+        html += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${student.name}</td>
+            <td><input type="number" min="0" max="100" class="form-control marks-input" 
+                 data-student-id="${student.id}" value="${marksValue}"></td>
+            <td class="grade-${gradeInfo.grade}">${gradeInfo.grade}</td>
+            <td>${gradeInfo.division}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('marksTableBody').innerHTML = html;
+      document.getElementById('marksEntrySection').style.display = 'block';
+
+      // Add event listeners to marks inputs
+      document.querySelectorAll('.marks-input').forEach(input => {
+        input.addEventListener('input', function() {
+          const marks = parseInt(this.value) || 0;
+          const row = this.closest('tr');
+          const gradeCell = row.querySelector('td:nth-child(4)');
+          const divisionCell = row.querySelector('td:nth-child(5)');
+          
+          if (marks >= 0 && marks <= 100) {
+            const gradeInfo = calculateUNEBGrade(marks);
+            gradeCell.textContent = gradeInfo.grade;
+            gradeCell.className = `grade-${gradeInfo.grade}`;
+            divisionCell.textContent = gradeInfo.division;
+          } else {
+            gradeCell.textContent = '';
+            gradeCell.className = '';
+            divisionCell.textContent = '';
+          }
+        });
+      });
+    });
+
+    // Save marks to localStorage
+    document.getElementById('saveMarksBtn').addEventListener('click', function() {
+      const className = document.getElementById('inputClass').value;
+      const subject = document.getElementById('inputSubject').value.trim();
+      const term = document.getElementById('inputTerm').value;
+      const year = document.getElementById('inputYear').value;
+      const marksInputs = document.querySelectorAll('.marks-input');
+
+      let marksData = JSON.parse(localStorage.getItem('marks')) || [];
+
+      // Remove existing records
+      marksData = marksData.filter(m => 
+        !(m.class === className && 
+          m.subject.toLowerCase() === subject.toLowerCase() && 
+          m.term === term && 
+          m.year == year)
+      );
+
+      // Add new records
+      marksInputs.forEach(input => {
+        const studentId = input.getAttribute('data-student-id');
+        const marks = parseInt(input.value);
+
+        if (!isNaN(marks)) {
+          const gradeInfo = calculateUNEBGrade(marks);
+          
+          marksData.push({
+            studentId,
+            class: className,
+            subject,
+            term,
+            year,
+            marks,
+            grade: gradeInfo.grade,
+            division: gradeInfo.division,
+            remark: gradeInfo.remark,
+            recordedAt: new Date().toISOString()
+          });
+        }
+      });
+
+      localStorage.setItem('marks', JSON.stringify(marksData));
+      alert('Marks saved successfully!');
+    });
+
+    // Generate Report
+    document.getElementById('generateReportBtn').addEventListener('click', function() {
+      const className = document.getElementById('reportClass').value;
+      const term = document.getElementById('reportTerm').value;
+      const year = document.getElementById('reportYear').value;
+
+      const marksData = JSON.parse(localStorage.getItem('marks')) || [];
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+
+      // Filter marks
+      let filteredMarks = marksData;
+      if (className) filteredMarks = filteredMarks.filter(m => m.class === className);
+      if (term) filteredMarks = filteredMarks.filter(m => m.term === term);
+      if (year) filteredMarks = filteredMarks.filter(m => m.year == year);
+
+      if (filteredMarks.length === 0) {
+        alert('No marks found matching your criteria');
+        document.getElementById('reportSection').style.display = 'none';
+        return;
+      }
+
+      // Display report header info
+      document.getElementById('reportTermDisplay').textContent = term || 'All';
+      document.getElementById('reportYearDisplay').textContent = year || 'All';
+
+      // Generate class performance summary
+      let classReportHTML = `
+        <h5>Class Performance Summary</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Students</th>
+              <th>Average</th>
+              <th>D1-D2</th>
+              <th>C3-C6</th>
+              <th>P7-P8</th>
+              <th>F9</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Group by subject
+      const subjects = [...new Set(filteredMarks.map(m => m.subject))];
+      subjects.forEach(subject => {
+        const subjectMarks = filteredMarks.filter(m => m.subject === subject);
+        const average = (subjectMarks.reduce((sum, m) => sum + m.marks, 0) / subjectMarks.length).toFixed(1);
+        
+        const gradeCounts = {
+          distinction: subjectMarks.filter(m => ['D1','D2'].includes(m.grade)).length,
+          credit: subjectMarks.filter(m => ['C3','C4','C5','C6'].includes(m.grade)).length,
+          pass: subjectMarks.filter(m => ['P7','P8'].includes(m.grade)).length,
+          fail: subjectMarks.filter(m => m.grade === 'F9').length
+        };
+
+        classReportHTML += `
+          <tr>
+            <td>${subject}</td>
+            <td>${subjectMarks.length}</td>
+            <td>${average}</td>
+            <td>${gradeCounts.distinction}</td>
+            <td>${gradeCounts.credit}</td>
+            <td>${gradeCounts.pass}</td>
+            <td>${gradeCounts.fail}</td>
+          </tr>
+        `;
+      });
+
+      classReportHTML += `</tbody></table>`;
+      document.getElementById('classReport').innerHTML = classReportHTML;
+
+      // Generate individual student reports
+      let studentReportsHTML = '<h5 class="mt-4">Individual Student Reports</h5>';
+      const studentIds = [...new Set(filteredMarks.map(m => m.studentId))];
+
+      studentIds.forEach(studentId => {
+        const student = students.find(s => s.id === studentId) || {};
+        const studentMarks = filteredMarks.filter(m => m.studentId === studentId);
+        
+        let subjectsHTML = '';
+        studentMarks.forEach(mark => {
+          subjectsHTML += `
+            <tr>
+              <td>${mark.subject}</td>
+              <td>${mark.marks}</td>
+              <td class="grade-${mark.grade}">${mark.grade}</td>
+              <td>${mark.division}</td>
+              <td>${mark.remark}</td>
+            </tr>
+          `;
+        });
+
+        studentReportsHTML += `
+          <div class="card mb-3">
+            <div class="card-header">
+              <strong>${student.name || 'Unknown'}</strong> (Class: ${student.class || 'N/A'})
+            </div>
+            <div class="card-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>Division</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>${subjectsHTML}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('studentReports').innerHTML = studentReportsHTML;
+      document.getElementById('reportSection').style.display = 'block';
+    });
+
+    // Print Report
+    document.getElementById('printReportBtn').addEventListener('click', function() {
+      window.print();
+    });
+
+    // Export CSV
+    document.getElementById('exportReportBtn').addEventListener('click', function() {
+      const className = document.getElementById('reportClass').value || 'All Classes';
+      const term = document.getElementById('reportTerm').value || 'All Terms';
+      const year = document.getElementById('reportYear').value || 'All Years';
+
+      const marksData = JSON.parse(localStorage.getItem('marks')) || [];
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+
+      // Filter marks
+      let filteredMarks = marksData;
+      if (className !== 'All Classes') filteredMarks = filteredMarks.filter(m => m.class === className);
+      if (term !== 'All Terms') filteredMarks = filteredMarks.filter(m => m.term === term);
+      if (year !== 'All Years') filteredMarks = filteredMarks.filter(m => m.year == year);
+
+      if (filteredMarks.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      // Create CSV content
+      let csv = 'Student ID,Student Name,Class,Subject,Term,Year,Marks,UNEB Grade,Division,Remarks\n';
+      
+      filteredMarks.forEach(mark => {
+        const student = students.find(s => s.id === mark.studentId) || {};
+        csv += `"${mark.studentId}","${student.name || 'Unknown'}","${mark.class}","${mark.subject}","${mark.term}","${mark.year}","${mark.marks}","${mark.grade}","${mark.division}","${mark.remark}"\n`;
+      });
+
+      // Create download link
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `StAggrey_Report_Term${term}_${year}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    // Initialize current year
+    document.getElementById('inputYear').value = new Date().getFullYear();
+    document.getElementById('reportYear').value = new Date().getFullYear();
+  </script>
+</body>
+</html>
